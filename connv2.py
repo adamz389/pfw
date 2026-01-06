@@ -234,15 +234,15 @@ class Connection:
 
                     <div class="controller">
                       <div class="empty"></div>
-                      <button onclick="fetch('/FORWARD')">▲</button>
+                      <button onclick="fetch('http://192.168.4.1/FORWARD')">▲</button>
                       <div class="empty"></div>
 
-                      <button onclick="fetch('/LEFT')">◀</button>
-                      <button class="stop" onclick="fetch('/STOP')">■</button>
-                      <button onclick="fetch('/RIGHT')">▶</button>
+                      <button onclick="fetch('http://192.168.4.1/LEFT')">◀</button>
+                      <button class="stop" onclick="fetch('http://192.168.4.1/STOP')">■</button>
+                      <button onclick="fetch('http://192.168.4.1/RIGHT')">▶</button>
 
                       <div class="empty"></div>
-                      <button onclick="fetch('/BACKWARD')">▼</button>
+                      <button onclick="fetch('http://192.168.4.1/BACKWARD')">▼</button>
                       <div class="empty"></div>
                     </div>
                   </body>
