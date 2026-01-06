@@ -12,8 +12,8 @@ import socket
 import time
 from machine import PWM, Pin
 
-class Motor:
 
+class Motor:
     motorA1 = None
     motorA2 = None
 
@@ -35,8 +35,8 @@ class Motor:
         self.motorA1.duty_u16(0)
         self.motorA2.duty_u16(0)
 
-class Drivetrain:
 
+class Drivetrain:
     leftMotor = None
     rightMotor = None
 
@@ -84,9 +84,10 @@ class Drivetrain:
         self.rightMotor.stop()
         self.leftMotor.stop()
 
+
 class Connection:
-    ssid = "RPSWireless"
-    password = "38934"
+    gc.collect()
+    ap = network.WLAN(network.AP_IF)
 
     drivetrain = None
 
@@ -98,27 +99,40 @@ class Connection:
         wlan.active(True)
         wlan.connect(self.ssid, self.password)
         while not wlan.isconnected():
+            print("incorrect ssid or password")
             time.sleep(0.1)
+
         return wlan.ifconfig()[0]
+
+    def create(self):
+        ap.active(True)
+        ap.config(essid="pico123", password="12345678")
+        while not ap.active():
+            time.sleep(0.1)
+        time.sleep(1)
 
     def start(self):
 
-        ip = self.connect()
-        print(f"IP: {ip}")
+        # ip = self.connect()
+        # print(f"IP: {ip}")
 
-        addr = socket.getaddrinfo("0.0.0.0", 80)[0][-1]
+        self.create()
+
+        addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
         s = socket.socket()
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind(addr)
         s.listen(1)
 
-        print(f"Connect at {addr}")
+        print("Connect at http://192.168.4.1/")
 
         while True:
             cl, addr = s.accept()
 
             try:
-                cmd = cl.recv(1024)
+                cmd = cl.recv(1024).decode()
+
+                print(cmd)
 
                 cmd = cmd.split('\n')[0]
 
@@ -126,12 +140,14 @@ class Connection:
 
                 path = path.lstrip('/')
 
+                print(path)
+
                 if path == "FORWARD":
                     self.drivetrain.forward()
                 elif path == "LEFT":
                     self.drivetrain.turnLeft()
                 elif path == "RIGHT":
-                    self.drivetrain.forward()
+                    self.drivetrain.turnRight()
                 elif path == "BACKWARD":
                     self.drivetrain.backward()
                 elif path == "STOP":
@@ -143,4 +159,12 @@ class Connection:
 
             finally:
                 cl.close()
+
+
+# dt = Drivetrain()
+# dt.addLeftMotor(2, 3)
+# dt.addRightMotor(15, 14)
+#
+# conn = Connection(dt)
+# conn.start()
 
