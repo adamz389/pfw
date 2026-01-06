@@ -101,9 +101,6 @@ class Connection:
             time.sleep(0.1)
         return wlan.ifconfig()[0]
 
-    def stripCommands(self, cmd):
-
-
     def start(self):
 
         ip = self.connect()
@@ -143,7 +140,7 @@ class Connection:
 
             except OSError:
                 pass
-            
+
             finally:
                 cl.close()
 
