@@ -1,7 +1,7 @@
 import pygame
 import requests
 
-url = "http://localhost:8080/"
+url = ""
 
 pygame.init()
 pygame.joystick.init()
@@ -28,6 +28,8 @@ while True:
         data = "DOWN"
     elif abs(x) < 0.3 and y < -0.3:
         data = "UP"
+    elif abs(x) < 0.3 and abs(y) < 0.3:
+        data = "STOP"
 
     if prev != data:
         try:
@@ -37,3 +39,5 @@ while True:
             print(f"Failed to send data: {data}")
 
     print(x, y, data)
+
+pygame.quit()

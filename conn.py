@@ -10,11 +10,88 @@
 import network
 import socket
 import time
+from machine import PWM, Pin
 
+class Motor:
+
+    motorA1 = None
+    motorA2 = None
+
+    max = 60000
+
+    def __init__(self, motorA1, motorA2):
+        self.motorA2 = motorA2
+        self.motorA1 = motorA1
+
+    def forward(self):
+        self.motorA1.duty_u16(max)
+        self.motorA2.duty_u16(0)
+
+    def backward(self):
+        self.motorA1.duty_u16(0)
+        self.motorA2.duty_u16(max)
+
+    def stop(self):
+        self.motorA1.duty_u16(0)
+        self.motorA2.duty_u16(0)
+
+class Drivetrain:
+
+    leftMotor = None
+    rightMotor = None
+
+    def _init__(self, leftMotor, rightMotor):
+        self.leftMotor = leftMotor
+        self.rightMotor = rightMotor
+
+    def addLeftMotor(self, posNumber, negNumber):
+        motorA1 = PWM(Pin(posNumber))
+        motorA2 = PWM(Pin(negNumber))
+
+        motorA1.freq(1000)
+        motorA2.freq(1000)
+
+        motor = Motor(motorA1, motorA2)
+        self.leftMotor = motor
+
+    def addRightMotor(self, posNumber, negNumber):
+        motorA1 = PWM(Pin(posNumber))
+        motorA2 = PWM(Pin(negNumber))
+
+        motorA1.freq(1000)
+        motorA2.freq(1000)
+
+        motor = Motor(motorA1, motorA2)
+        self.rightMotor = motor
+
+    def forward(self):
+        self.leftMotor.forward()
+        self.rightMotor.forward()
+
+    def backward(self):
+        self.leftMotor.backward()
+        self.rightMotor.backward()
+
+    def turnRight(self):
+        self.rightMotor.forward()
+        self.leftMotor.backward()
+
+    def turnLeft(self):
+        self.rightMotor.backward()
+        self.leftMotor.forward()
+
+    def stop(self):
+        self.rightMotor.stop()
+        self.leftMotor.stop()
 
 class Connection:
     ssid = "RPSWireless"
-    password = "test"
+    password = "38934"
+
+    drivetrain = None
+
+    def __init__(self, drivetrain):
+        self.drivetrain = drivetrain
 
     def connect(self):
         wlan = network.WLAN(network.STA_IF)
@@ -23,6 +100,9 @@ class Connection:
         while not wlan.isconnected():
             time.sleep(0.1)
         return wlan.ifconfig()[0]
+
+    def stripCommands(self, cmd):
+
 
     def start(self):
 
@@ -41,10 +121,29 @@ class Connection:
             cl, addr = s.accept()
 
             try:
-                data = cl.recv(1024)
-                print(data)
+                cmd = cl.recv(1024)
+
+                cmd = cmd.split('\n')[0]
+
+                method, path, _ = cmd.split()
+
+                path = path.lstrip('/')
+
+                if path == "FORWARD":
+                    self.drivetrain.forward()
+                elif path == "LEFT":
+                    self.drivetrain.turnLeft()
+                elif path == "RIGHT":
+                    self.drivetrain.forward()
+                elif path == "BACKWARD":
+                    self.drivetrain.backward()
+                elif path == "STOP":
+                    self.drivetrain.stop()
                 cl.send(b"OK")
+
             except OSError:
                 pass
-            cl.close()
+            
+            finally:
+                cl.close()
 
