@@ -18,23 +18,46 @@ class Motor:
     motorA1 = None
     motorA2 = None
 
-    max = 65535
+    MAX_DUTY = 65535
 
     def __init__(self, motorA1, motorA2):
         self.motorA2 = motorA2
         self.motorA1 = motorA1
 
-    def forward(self):
-        self.motorA1.duty_u16(max)
-        self.motorA2.duty_u16(0)
+    def setMaxDuty(self, duty):
+        self.MAX_DUTY = duty
 
-    def backward(self):
-        self.motorA1.duty_u16(0)
-        self.motorA2.duty_u16(max)
+    def setPower(self, power):
+
+        direction = "forward"
+
+        if power > 0:
+            direction = "forward"
+        elif power < 0:
+            direction = "backward"
+        else:
+            direction = "stop"
+
+        power = int(max(0, min(1, abs(power))) * self.MAX_DUTY)
+
+        if direction == "forward":
+            self.motorA1.duty_u16(power)
+            self.motorA2.duty_u16(0)
+        elif direction == "backward":
+            self.motorA1.duty_u16(0)
+            self.motorA2.duty_u16(power)
+        else:
+            self.motorA1.duty_u16(0)
+            self.motorA2.duty_u16(0)
+
+    def forward(self, power = 1):
+        self.setPower(power)
+
+    def backward(self, power = -1):
+        self.setPower(power)
 
     def stop(self):
-        self.motorA1.duty_u16(0)
-        self.motorA2.duty_u16(0)
+        self.setPower(0)
 
 
 class Drivetrain:
@@ -170,7 +193,7 @@ class Connection:
                       body {
                         font-family: Arial, sans-serif;
                         background-color: #f2f2f2;
-                        margin: 0;
+                        margin: 0;w
                         padding: 20px;
                       }
 
