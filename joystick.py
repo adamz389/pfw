@@ -38,5 +38,3 @@ while True:
             print(f"Failed to send data: {data}")
 
     print(x, y, data)
-
-pygame.quit()

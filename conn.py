@@ -1,12 +1,4 @@
-# ViperIDE - MicroPython Web IDE
-# Read more: https://github.com/vshymanskyy/ViperIDE
-
-# Connect your device and start creating! 🤖👨‍💻🕹️
-
-# You can also open a virtual device and explore some examples:
-# https://viper-ide.org?vm=1
-
-
+import gc
 import network
 import socket
 import time
@@ -14,110 +6,121 @@ from machine import PWM, Pin
 
 
 class Motor:
-    motorA1 = None
-    motorA2 = None
-
-    max = 60000
 
     def __init__(self, motorA1, motorA2):
-        self.motorA2 = motorA2
         self.motorA1 = motorA1
+        self.motorA2 = motorA2
+        self.MAX_DUTY = 65535
 
-    def forward(self):
-        self.motorA1.duty_u16(max)
-        self.motorA2.duty_u16(0)
+    def setMaxDuty(self, duty):
+        self.MAX_DUTY = duty
 
-    def backward(self):
-        self.motorA1.duty_u16(0)
-        self.motorA2.duty_u16(max)
+    def setPower(self, power):
+        direction = "forward" if power > 0 else "backward" if power < 0 else "stop"
+        power = int(max(0, min(1, abs(power))) * self.MAX_DUTY)
+        if direction == "forward":
+            self.motorA1.duty_u16(power)
+            self.motorA2.duty_u16(0)
+        elif direction == "backward":
+            self.motorA1.duty_u16(0)
+            self.motorA2.duty_u16(power)
+        else:
+            self.motorA1.duty_u16(0)
+            self.motorA2.duty_u16(0)
+
+    def forward(self, power=1):
+        self.setPower(power)
+
+    def backward(self, power=-1):
+        self.setPower(power)
 
     def stop(self):
-        self.motorA1.duty_u16(0)
-        self.motorA2.duty_u16(0)
+        self.setPower(0)
 
 
 class Drivetrain:
-    leftMotor = None
-    rightMotor = None
 
-    def _init__(self, leftMotor, rightMotor):
-        self.leftMotor = leftMotor
-        self.rightMotor = rightMotor
+    def __init__(self):
+        self.leftMotor = None
+        self.rightMotor = None
+        self.status = "Idle"
 
     def addLeftMotor(self, posNumber, negNumber):
         motorA1 = PWM(Pin(posNumber))
         motorA2 = PWM(Pin(negNumber))
-
         motorA1.freq(1000)
         motorA2.freq(1000)
-
-        motor = Motor(motorA1, motorA2)
-        self.leftMotor = motor
+        self.leftMotor = Motor(motorA1, motorA2)
 
     def addRightMotor(self, posNumber, negNumber):
         motorA1 = PWM(Pin(posNumber))
         motorA2 = PWM(Pin(negNumber))
-
         motorA1.freq(1000)
         motorA2.freq(1000)
+        self.rightMotor = Motor(motorA1, motorA2)
 
-        motor = Motor(motorA1, motorA2)
-        self.rightMotor = motor
+    def _ready_(self):
+        if self.leftMotor is None:
+            raise ValueError("Left motor not initialized.")
+        if self.rightMotor is None:
+            raise ValueError("Right motor not initialized.")
 
     def forward(self):
+        self._ready_()
         self.leftMotor.forward()
         self.rightMotor.forward()
+        self.status = "Moving"
 
     def backward(self):
+        self._ready_()
         self.leftMotor.backward()
         self.rightMotor.backward()
+        self.status = "Moving"
 
     def turnRight(self):
-        self.rightMotor.forward()
-        self.leftMotor.backward()
+        self._ready_()
+        self.leftMotor.forward()
+        self.rightMotor.backward()
+        self.status = "Moving"
 
     def turnLeft(self):
-        self.rightMotor.backward()
-        self.leftMotor.forward()
+        self._ready_()
+        self.leftMotor.backward()
+        self.rightMotor.forward()
+        self.status = "Moving"
 
     def stop(self):
-        self.rightMotor.stop()
+        self._ready_()
         self.leftMotor.stop()
+        self.rightMotor.stop()
+        self.status = "Idle"
 
 
 class Connection:
-    gc.collect()
-    ap = network.WLAN(network.AP_IF)
 
-    drivetrain = None
-
-    def __init__(self, drivetrain):
-        self.drivetrain = drivetrain
-
-    def connect(self):
-        wlan = network.WLAN(network.STA_IF)
-        wlan.active(True)
-        wlan.connect(self.ssid, self.password)
-        while not wlan.isconnected():
-            print("incorrect ssid or password")
-            time.sleep(0.1)
-
-        return wlan.ifconfig()[0]
+    def __init__(self):
+        gc.collect()
+        self.ap = network.WLAN(network.AP_IF)
+        self.command_map = {}
 
     def create(self):
-        ap.active(True)
-        ap.config(essid="pico123", password="12345678")
-        while not ap.active():
+        self.ap.active(True)
+        self.ap.config(essid="pico123", password="12345678")
+        while not self.ap.active():
             time.sleep(0.1)
         time.sleep(1)
 
+    def addMapping(self, cmd, function):
+        self.command_map[cmd] = function
+
+    def runMapping(self, cmd):
+        if self.command_map.__contains__(cmd):
+            self.command_map[cmd]()
+        else:
+            print(f"Command {cmd} is mapped to no function")
+
     def start(self):
-
-        # ip = self.connect()
-        # print(f"IP: {ip}")
-
         self.create()
-
         addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
         s = socket.socket()
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -128,43 +131,76 @@ class Connection:
 
         while True:
             cl, addr = s.accept()
-
             try:
                 cmd = cl.recv(1024).decode()
-
-                print(cmd)
-
-                cmd = cmd.split('\n')[0]
-
-                method, path, _ = cmd.split()
-
+                cmd_line = cmd.split("\n")[0]
+                parts = cmd_line.split()
+                if len(parts) < 2:
+                    cl.close()
+                    continue
+                method, path = parts[0], parts[1]
                 path = path.lstrip('/')
 
-                print(path)
+                html = """
+                <html>
+                  <head>
+                    <style>
+                      body { font-family: Arial, sans-serif; background-color: #f2f2f2; margin: 0; padding: 20px; }
+                      h1 { color: #333; }
+                      h2 { color: #555; }
+                      .status-box { background-color: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.2); max-width: 400px; }
+                      .controller { position: fixed; bottom: 20px; right: 20px; width: 160px; height: 160px; display: grid; grid-template-columns: 50px 60px 50px; grid-template-rows: 50px 60px 50px; gap: 5px; background-color: rgba(255,255,255,0.9); border-radius: 12px; box-shadow: 0 0 8px rgba(0,0,0,0.2); padding: 5px; }
+                      .controller button { font-size: 16px; cursor: pointer; border: none; border-radius: 6px; background-color: #4CAF50; color: white; transition: 0.2s; }
+                      .controller button:hover { background-color: #45a049; }
+                      .empty { background: none; }
+                      .stop { background-color: #f44336; }
+                      .stop:hover { background-color: #d32f2f; }
+                    </style>
+                  </head>
+                  <body>
+                    <div class="status-box">
+                      <h1>robot drivetrain</h1>
+                      <h2>Status: {status}</h2>
+                      <p>IP: 192.168.4.1</p>
+                    </div>
+                    <div class="controller">
+                      <div class="empty"></div>
+                      <button onclick="fetch('http://192.168.4.1/FORWARD')">▲</button>
+                      <div class="empty"></div>
+                      <button onclick="fetch('http://192.168.4.1/LEFT')">◀</button>
+                      <button class="stop" onclick="fetch('http://192.168.4.1/STOP')">■</button>
+                      <button onclick="fetch('http://192.168.4.1/RIGHT')">▶</button>
+                      <div class="empty"></div>
+                      <button onclick="fetch('http://192.168.4.1/BACKWARD')">▼</button>
+                      <div class="empty"></div>
+                    </div>
+                  </body>
+                </html>
+                """.format(status=self.drivetrain.status)
 
-                if path == "FORWARD":
-                    self.drivetrain.forward()
-                elif path == "LEFT":
-                    self.drivetrain.turnLeft()
-                elif path == "RIGHT":
-                    self.drivetrain.turnRight()
-                elif path == "BACKWARD":
-                    self.drivetrain.backward()
-                elif path == "STOP":
-                    self.drivetrain.stop()
+                if path == "":
+                    cl.send(f"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n{html}".encode())
+                    cl.close()
+                    continue
+                else:
+                    self.runMapping(path)
+
                 cl.send(b"OK")
 
             except OSError:
                 pass
-
             finally:
                 cl.close()
+dt = Drivetrain()
+connection = Connection()
 
+# can map paths to functions instead of pre-set pairs
+# remove drivetrain object from connection
 
-# dt = Drivetrain()
-# dt.addLeftMotor(2, 3)
-# dt.addRightMotor(15, 14)
-#
-# conn = Connection(dt)
-# conn.start()
+connection.addMapping("FORWARD", dt.forward)
+connection.addMapping("LEFT", dt.turnLeft)
+connection.addMapping("RIGHT", dt.turnRight)
+connection.addMapping("BACKWARD", dt.backward)
+connection.addMapping("STOP", dt.stop)
 
+connection.start()
