@@ -13,6 +13,8 @@ import gc
 import network
 import socket
 
+MAX_DUTY = 65535
+
 class Connection:
     
     def __init__(self, essid, password):
@@ -80,7 +82,6 @@ class Robot:
         dt = self.get_dt()
         for func in self.periodics:
             func(dt)
-        time.sleep(0.001)
 
     def get_runtime(self):
         return self.runtime.elapsed()
@@ -93,8 +94,6 @@ class Robot:
 
     def stop(self):
         self.running = False
-            
-        
 
 class Runtime:
 
@@ -123,7 +122,43 @@ class Loop:
         dt = time.ticks_diff(now, self.last_time) / 1000
         self.last_time = now
         return max(dt, 0.001)
-    
+
+class Utils:
+
+    @staticmethod
+    def Clamp(num, minimum, maximum):
+        return min(maximum, max(minimum, num))
+
+class Motor:
+
+    def __init__(self, m1, m2):
+        self.m1 = m1
+        self.m2 = m2
+
+    def setPower(self, power):
+        power = Utils.Clamp(power, -1, 1)
+
+        if power > 0:
+            self.m1.duty_u16(int(power * MAX_DUTY))
+            self.m2.duty_u16(0)
+        elif power < 0:
+            self.m2.duty_u16(int(-power * MAX_DUTY))
+            self.m1.duty_u16(0)
+        else:
+            self.stop()
+
+    def stop(self):
+        self.m1.duty_u16(0)
+        self.m2.duty_u16(0)
+
+    def setMaxDuty(self, duty):
+        MAX_DUTY = duty
+
+    def forward(self, power=1):
+        self.setPower(abs(power))
+
+    def reverse(self, power=1):
+        self.setPower(-abs(power))
 
 class PID:
 
@@ -135,14 +170,16 @@ class PID:
         self.last_error = 0
         self.last_time = time.ticks_ms()
 
-    def compute(self, target, current):
+    def compute(self, target, current, dt=None):
         # KP
         error = target - current
 
         # KI
         now = time.ticks_ms()
-        dt = (time.ticks_diff(now, self.last_time)) / 1000
+        actual_dt = (time.ticks_diff(now, self.last_time)) / 1000
         self.last_time = now
+        if dt is None:
+            dt = actual_dt
         self.integral += error * dt
 
         # KD
@@ -151,21 +188,22 @@ class PID:
 
         output = self.kP * error + self.kI * self.integral + self.kD * derivative
 
-        return max(0, min(65535, int(output)))
-
+        return int(Utils.Clamp(output, -MAX_DUTY, MAX_DUTY))
 
 class MotorEX:
 
-    def __init__(self, m1, c1, pid, ppr=700):
+    def __init__(self, m1, m2, c1, pid, ppr=700):
         self.curr_rpm = 0
         self.targ_rpm = 0
         self.pulse_count = 0
         self.last_duty = 0
 
         self.motorA1 = PWM(Pin(m1))
+        self.motorA2 = PWM(Pin(m2))
         self.encoder = Pin(c1, Pin.IN)
 
         self.motorA1.freq(1000)
+        self.motorA2.freq(1000)
 
         self.encoder.irq(trigger=Pin.IRQ_RISING, handler=self.on_pulse)
         self.ppr = ppr
@@ -187,7 +225,7 @@ class MotorEX:
         self.targ_rpm = targetRPM
 
     def getVelocity(self):
-        return self.rpmToRADS(self.getRPM())
+        return self.rpmToRADS(self.curr_rpm)
 
     def setVelocity(self, velocity):
         self.targ_rpm = self.radsToRPM(velocity)
@@ -203,20 +241,26 @@ class MotorEX:
 
     def update(self, dt):
         rpm = self.getRPM(dt)
-        duty = self.pid.compute(self.targ_rpm, rpm)
-        self.motorA1.duty_u16(duty)
+        duty = self.pid.compute(self.targ_rpm, rpm, dt)
+
+        if duty >= 0:
+            self.motorA1.duty_u16(duty)
+            self.motorA2.duty_u16(0)
+        else:
+            self.motorA1.duty_u16(0)
+            self.motorA2.duty_u16(-duty)  # negate since duty is negative
         self.last_duty = duty
 
 
 # must tune values
 pid = PID(1, 0.2, 0.5)
-motor = MotorEX(15, 13, pid)
+motor = MotorEX(15, 14, 13, pid)
 motor.setVelocity(150)  # 150 rad/s
 
 robot = Robot()
 robot.register(motor)
 
-#added tiny 1ms delay in robot periodoc
+#add tiny 1ms delay in robot periodoc
 
 while robot.is_running():
     robot.periodic()
