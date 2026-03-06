@@ -1,206 +1,235 @@
+from machine import PWM, Pin
+import time
+import math
 import gc
 import network
 import socket
-import time
-from machine import PWM, Pin
-
-
-class Motor:
-
-    def __init__(self, motorA1, motorA2):
-        self.motorA1 = motorA1
-        self.motorA2 = motorA2
-        self.MAX_DUTY = 65535
-
-    def setMaxDuty(self, duty):
-        self.MAX_DUTY = duty
-
-    def setPower(self, power):
-        direction = "forward" if power > 0 else "backward" if power < 0 else "stop"
-        power = int(max(0, min(1, abs(power))) * self.MAX_DUTY)
-        if direction == "forward":
-            self.motorA1.duty_u16(power)
-            self.motorA2.duty_u16(0)
-        elif direction == "backward":
-            self.motorA1.duty_u16(0)
-            self.motorA2.duty_u16(power)
-        else:
-            self.motorA1.duty_u16(0)
-            self.motorA2.duty_u16(0)
-
-    def forward(self, power=1):
-        self.setPower(power)
-
-    def backward(self, power=-1):
-        self.setPower(power)
-
-    def stop(self):
-        self.setPower(0)
-
-
-class Drivetrain:
-
-    def __init__(self):
-        self.leftMotor = None
-        self.rightMotor = None
-        self.status = "Idle"
-
-    def addLeftMotor(self, posNumber, negNumber):
-        motorA1 = PWM(Pin(posNumber))
-        motorA2 = PWM(Pin(negNumber))
-        motorA1.freq(1000)
-        motorA2.freq(1000)
-        self.leftMotor = Motor(motorA1, motorA2)
-
-    def addRightMotor(self, posNumber, negNumber):
-        motorA1 = PWM(Pin(posNumber))
-        motorA2 = PWM(Pin(negNumber))
-        motorA1.freq(1000)
-        motorA2.freq(1000)
-        self.rightMotor = Motor(motorA1, motorA2)
-
-    def _ready_(self):
-        if self.leftMotor is None:
-            raise ValueError("Left motor not initialized.")
-        if self.rightMotor is None:
-            raise ValueError("Right motor not initialized.")
-
-    def forward(self):
-        self._ready_()
-        self.leftMotor.forward()
-        self.rightMotor.forward()
-        self.status = "Moving"
-
-    def backward(self):
-        self._ready_()
-        self.leftMotor.backward()
-        self.rightMotor.backward()
-        self.status = "Moving"
-
-    def turnRight(self):
-        self._ready_()
-        self.leftMotor.forward()
-        self.rightMotor.backward()
-        self.status = "Moving"
-
-    def turnLeft(self):
-        self._ready_()
-        self.leftMotor.backward()
-        self.rightMotor.forward()
-        self.status = "Moving"
-
-    def stop(self):
-        self._ready_()
-        self.leftMotor.stop()
-        self.rightMotor.stop()
-        self.status = "Idle"
 
 
 class Connection:
 
-    def __init__(self):
+    def __init__(self, essid, password):
         gc.collect()
         self.ap = network.WLAN(network.AP_IF)
         self.command_map = {}
+        self.s = None
+        self.essid = essid
+        self.password = password
 
     def create(self):
         self.ap.active(True)
-        self.ap.config(essid="pico123", password="12345678")
+        self.ap.config(self.essid, self.password)
         while not self.ap.active():
             time.sleep(0.1)
         time.sleep(1)
+        addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
+        self.s = socket.socket()
+        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.s.bind(addr)
+        self.s.listen(1)
+        self.s.settimeout(0)
+        print("Connect at http://192.168.4.1/")
 
     def addMapping(self, cmd, function):
         self.command_map[cmd] = function
 
     def runMapping(self, cmd):
-        if self.command_map.__contains__(cmd):
+        if cmd in self.command_map:
             self.command_map[cmd]()
         else:
-            print(f"Command {cmd} is mapped to no function")
+            print(f"Command {cmd} has no function")
 
-    def start(self):
-        self.create()
-        addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
-        s = socket.socket()
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind(addr)
-        s.listen(1)
-
-        print("Connect at http://192.168.4.1/")
-
-        while True:
-            cl, addr = s.accept()
+    def update(self, dt):
+        try:
+            cl, addr = self.s.accept()
             try:
                 cmd = cl.recv(1024).decode()
-                cmd_line = cmd.split("\n")[0]
-                parts = cmd_line.split()
-                if len(parts) < 2:
-                    cl.close()
-                    continue
-                method, path = parts[0], parts[1]
-                path = path.lstrip('/')
-
-                html = """
-                <html>
-                  <head>
-                    <style>
-                      body { font-family: Arial, sans-serif; background-color: #f2f2f2; margin: 0; padding: 20px; }
-                      h1 { color: #333; }
-                      h2 { color: #555; }
-                      .status-box { background-color: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.2); max-width: 400px; }
-                      .controller { position: fixed; bottom: 20px; right: 20px; width: 160px; height: 160px; display: grid; grid-template-columns: 50px 60px 50px; grid-template-rows: 50px 60px 50px; gap: 5px; background-color: rgba(255,255,255,0.9); border-radius: 12px; box-shadow: 0 0 8px rgba(0,0,0,0.2); padding: 5px; }
-                      .controller button { font-size: 16px; cursor: pointer; border: none; border-radius: 6px; background-color: #4CAF50; color: white; transition: 0.2s; }
-                      .controller button:hover { background-color: #45a049; }
-                      .empty { background: none; }
-                      .stop { background-color: #f44336; }
-                      .stop:hover { background-color: #d32f2f; }
-                    </style>
-                  </head>
-                  <body>
-                    <div class="status-box">
-                      <h1>robot drivetrain</h1>
-                      <h2>Status: {status}</h2>
-                      <p>IP: 192.168.4.1</p>
-                    </div>
-                    <div class="controller">
-                      <div class="empty"></div>
-                      <button onclick="fetch('http://192.168.4.1/FORWARD')">▲</button>
-                      <div class="empty"></div>
-                      <button onclick="fetch('http://192.168.4.1/LEFT')">◀</button>
-                      <button class="stop" onclick="fetch('http://192.168.4.1/STOP')">■</button>
-                      <button onclick="fetch('http://192.168.4.1/RIGHT')">▶</button>
-                      <div class="empty"></div>
-                      <button onclick="fetch('http://192.168.4.1/BACKWARD')">▼</button>
-                      <div class="empty"></div>
-                    </div>
-                  </body>
-                </html>
-                """.format(status=self.drivetrain.status)
-
-                if path == "":
-                    cl.send(f"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n{html}".encode())
-                    cl.close()
-                    continue
-                else:
+                path = cmd.split("\n")[0].split()[1].lstrip('/')
+                if path:
                     self.runMapping(path)
-
                 cl.send(b"OK")
-
             except OSError:
                 pass
             finally:
                 cl.close()
-dt = Drivetrain()
-connection = Connection()
+        except OSError:
+            pass
 
-# can map paths to functions instead of pre-set pairs
-# remove drivetrain object from connection
 
-connection.addMapping("FORWARD", dt.forward)
-connection.addMapping("LEFT", dt.turnLeft)
-connection.addMapping("RIGHT", dt.turnRight)
-connection.addMapping("BACKWARD", dt.backward)
-connection.addMapping("STOP", dt.stop)
+class Robot:
 
-connection.start()
+    def __init__(self):
+        self.periodics = []
+        self.loop = Loop()
+        self.runtime = Runtime()
+        self.runtime.start()
+        self.running = True
+
+    def register(self, device):
+        if hasattr(device, "update"):
+            self.periodics.append(device.update)
+
+    def periodic(self):
+        dt = self.get_dt()
+        for func in self.periodics:
+            func(dt)
+        time.sleep(0.001)
+
+    def get_runtime(self):
+        return self.runtime.elapsed()
+
+    def get_dt(self):
+        return self.loop.dt()
+
+    def is_running(self):
+        return self.running
+
+    def stop(self):
+        self.running = False
+
+
+class Runtime:
+
+    def __init__(self):
+        self.last_time = None
+
+    def start(self):
+        self.last_time = time.ticks_ms()
+
+    def reset(self):
+        self.last_time = time.ticks_ms()
+
+    def elapsed(self):
+        if self.last_time is None:
+            return 0
+        now = time.ticks_ms()
+        return time.ticks_diff(now, self.last_time)
+
+
+class Loop:
+
+    def __init__(self):
+        self.last_time = time.ticks_ms()
+
+    def dt(self):
+        now = time.ticks_ms()
+        dt = time.ticks_diff(now, self.last_time) / 1000
+        self.last_time = now
+        return max(dt, 0.001)
+
+
+class Vector2:
+
+    def __init__(self, x=0, y=0):
+        self.x = x
+        self.y = y
+
+    def normalize(self):
+        mag = self.magnitude()
+        if mag == 0:
+            return
+        self.x /= mag
+        self.y /= mag
+
+    def magnitude(self):
+        return math.sqrt(self.x * self.x + self.y * self.y)
+
+    def __add__(self, other):
+        return Vector2(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other):
+        return Vector2(self.x - other.x, self.y - other.y)
+
+    def __mul__(self, scalar):
+        return Vector2(self.x * scalar, self.y * scalar)
+
+
+class PID:
+
+    def __init__(self, kP, kI, kD):
+        self.kP = kP
+        self.kI = kI
+        self.kD = kD
+        self.integral = 0
+        self.last_error = 0
+
+    def compute(self, target, current, dt):
+        error = target - current
+        self.integral += error * dt
+        derivative = (error - self.last_error) / dt if dt > 0 else 0
+        self.last_error = error
+        output = self.kP * error + self.kI * self.integral + self.kD * derivative
+        return max(0, min(65535, int(output)))
+
+
+class MotorEX:
+
+    def __init__(self, m1, m2, c1, pid, ppr=700):
+        self.curr_rpm = 0
+        self.targ_rpm = 0
+        self.pulse_count = 0
+        self.last_duty = 0
+
+        self.motorA1 = PWM(Pin(m1))
+        self.motorA2 = PWM(Pin(m2))
+        self.encoder = Pin(c1, Pin.IN)
+
+
+        self.motorA1.freq(1000)
+        self.motorA2.freq(1000)
+
+        self.encoder.irq(trigger=Pin.IRQ_RISING, handler=self.on_pulse)
+        self.ppr = ppr
+        self.pid = pid
+
+    def on_pulse(self, pin):
+        self.pulse_count += 1
+
+    def getRPM(self, dt):
+        revolutions = self.pulse_count / self.ppr
+        rpm = revolutions * (60 / dt)
+        self.pulse_count = 0
+        self.curr_rpm = rpm
+        return rpm
+
+    def setRPM(self, targetRPM):
+        self.targ_rpm = targetRPM
+
+    def getVelocity(self):
+        return self.rpmToRADS(self.curr_rpm)
+
+    def setVelocity(self, velocity):
+        self.targ_rpm = self.radsToRPM(velocity)
+
+    def radsToRPM(self, omega):
+        return omega * 30 / math.pi
+
+    def rpmToRADS(self, rpm):
+        return rpm * math.pi / 30
+
+    def getLastDuty(self):
+        return self.last_duty
+
+    def update(self, dt):
+        rpm = self.getRPM(dt)
+        duty = self.pid.compute(self.targ_rpm, rpm, dt)
+        if self.targ_rpm >= 0:
+            self.motorA1.duty_u16(duty)
+            self.motorA2.duty_u16(0)
+        else:
+            self.motorA1.duty_u16(0)
+            self.motorA2.duty_u16(duty)
+        self.last_duty = duty
+
+
+pid = PID(1, 0.2, 0.5) # tune pid values
+motor = MotorEX(15, 14, 13, pid)
+motor.setVelocity(150) # rad/s
+
+robot = Robot()
+robot.register(motor)
+
+# increase robot periodic sleep time more than 1ms for cpu
+
+while robot.is_running():
+    robot.periodic()
