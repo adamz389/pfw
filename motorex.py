@@ -87,7 +87,7 @@ class Physics:
         self.theta = theta
         
     def calculateOmega(self, x):
-        denominator = (x * math.tan(self.theta) - self.y) * (2 * (math.cos(self.theta) ** 2))
+        denominator = (x * math.tan(math.radians(self.theta)) - self.y) * (2 * (math.cos(math.radians(self.theta)) ** 2))
 
         if denominator <= 0:
             print("Invalid input: square root would be negative or division by zero")
