@@ -74,6 +74,29 @@ class Connection:
         except OSError:
             pass
 
+class Physics:
+
+    R = .0127 # wheel radius
+    g = 9.81 # g constant
+    # y = 0.5715
+    y = 0.4445 # height of target
+    theta = 40 # launch angle
+
+    def __init__(self, R=.0127, theta=40):
+        self.R = R
+        self.theta = theta
+        
+    def calculateOmega(self, x):
+        denominator = (x * math.tan(self.theta) - self.y) * (2 * (math.cos(self.theta) ** 2))
+
+        if denominator <= 0:
+            print("Invalid input: square root would be negative or division by zero")
+            return None
+        
+        omega = (1/self.R) * math.sqrt((self.g * (x*x)) / denominator)
+        print(f"rad/s of {omega}")
+        return omega
+
 class Robot:
     
     def __init__(self):
@@ -196,19 +219,22 @@ class PID:
         self.last_time = now
         if dt is None:
             dt = actual_dt
+        
         self.integral += error * dt
+        self.integral = Utils.Clamp(self.integral, -5000, 5000)
 
         # KD
         derivative = (error - self.last_error) / dt if dt > 0 else 0
         self.last_error = error
 
         output = self.kP * error + self.kI * self.integral + self.kD * derivative
-
-        return int(Utils.Clamp(output, -MAX_DUTY, MAX_DUTY))
+        
+        duty = int(Utils.Clamp(output, -MAX_DUTY, MAX_DUTY))
+        return duty
         
 class MotorEX:
 
-    def __init__(self, m1, m2, c1, pid, ppr=41, measure_interval=1.0):
+    def __init__(self, m1, m2, c1, pid=PID(70, 4, 5), ppr=38, measure_interval=0.05):
         self.curr_rpm = 0
         self.targ_rpm = 0
         self.pulse_count = 0
@@ -225,6 +251,8 @@ class MotorEX:
 
         self.pid = pid
         self.ppr = ppr
+
+        self.logs_enabled = False
 
         # measurement timing
         self.measure_interval = measure_interval
@@ -257,6 +285,9 @@ class MotorEX:
 
     def getRPM(self):
         return self.curr_rpm
+
+    def enablePIDLogs(self):
+        self.logs_enabled = True
 
     def getVelocity(self):
         return self.rpmToRADS(self.curr_rpm)
@@ -293,41 +324,26 @@ class MotorEX:
             self.motorA2.duty_u16(-duty)
 
         self.last_duty = duty
+        
+        if self.logs_enabled:
+            print("RPM:", self.getRPM(), "Duty:", self.getLastDuty())
 
-# must tune values
-pid = PID(1, 0.2, 5)
-motor = MotorEX(3, 2, 13, pid, 51) 
 
+
+# -- tuned values --
+# kP = 70
+# kI = 4
+# kD = 5
+
+motor = MotorEX(3, 2, 13) 
+motor.enablePIDLogs()
 
 robot = Robot()
 robot.register(motor)
 
 while True:
-    motor.setPower(1)
+    motor.setVelocity(200)
     robot.periodic()
-    print(f"RPM: {motor.getRPM()}")
 
-R = .0127 # wheel radius
-g = 9.81 # g constant
-# y = 0.5715
-y = 0.4445 # height of target
-theta = 60 # launch angle
-
-# def calculatePower(x):
-#         pow = -(2.94189e-9 * (x*x*x*x)) + (0.00000229358 * (x*x*x)) - (0.000625231 * (x*x)) + (0.0732917 * x) - 2.80291
-#         print(f"runs at {pow} power")
-#         return pow
-
-# def calculateOmega(x):
-#     denominator = x * math.sqrt(3) - y
-#     if denominator <= 0:
-#         print("Invalid input: square root would be negative or division by zero")
-#         return None
-#     omega = (1/R) * math.sqrt((2*g*(x*x)) / denominator)
-#     print(f"rad/s of {omega}")
-#     return omega
-
-# rad = calculateOmega(0.6096)
-# pow = calculatePower(rad)
 
 #add tiny 1ms delay in robot periodoc
