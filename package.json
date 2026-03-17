@@ -5,6 +5,6 @@
   "author": "adam zidani",
   "license": "MIT",
   "urls": [
-    ["final.py", "github:adamz389/conn/final.py"]
+    ["fmw.py", "github:adamz389/conn/fmw.py"]
   ]
 }
