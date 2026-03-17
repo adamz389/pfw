@@ -1,7 +1,7 @@
 {
   "name": "conn",
   "version": "0.1.0",
-  "description": "connect joystick to pico",
+  "description": "pico",
   "author": "adam zidani",
   "license": "MIT",
   "urls": [
