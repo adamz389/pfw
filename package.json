@@ -1,10 +1,9 @@
 {
-  "name": "conn",
+  "name": "pfw",
   "version": "0.1.0",
   "description": "pico",
-  "author": "adam zidani",
-  "license": "MIT",
+  "author": "adam",
   "urls": [
-    ["fmw.py", "github:adamz389/conn/fmw.py"]
+    ["pfw.py", "github:adamz389/conn/pfw.py"]
   ]
 }
