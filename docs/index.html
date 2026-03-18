@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>PFW docs &#8212; pfw 2026 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=fc6fd62b"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pfw-docs">
+<h1>PFW docs<a class="headerlink" href="#pfw-docs" title="Link to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="module-pfw">
+<span id="modules"></span><h1>Modules<a class="headerlink" href="#module-pfw" title="Link to this heading">¶</a></h1>
+<section id="pfw-micropython-robotics-framework">
+<h2>PFW - MicroPython Robotics Framework<a class="headerlink" href="#pfw-micropython-robotics-framework" title="Link to this heading">¶</a></h2>
+<p>ViperIDE - MicroPython Web IDE
+<a class="reference external" href="https://github.com/vshymanskyy/ViperIDE">https://github.com/vshymanskyy/ViperIDE</a></p>
+<p>This module provides classes and utilities for:
+- Robot control loops
+- Motor control with PWM
+- PID controllers
+- Physics calculations
+- MicroPython network connections for remote commands</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="pfw.Connection">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfw.</span></span><span class="sig-name descname"><span class="pre">Connection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">essid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Connection" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Handles a WiFi access point connection for remote command execution.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfw.Connection.ap">
+<span class="sig-name descname"><span class="pre">ap</span></span><a class="headerlink" href="#pfw.Connection.ap" title="Link to this definition">¶</a></dt>
+<dd><p>The access point interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>network.WLAN</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfw.Connection.command_map">
+<span class="sig-name descname"><span class="pre">command_map</span></span><a class="headerlink" href="#pfw.Connection.command_map" title="Link to this definition">¶</a></dt>
+<dd><p>Maps commands to functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfw.Connection.s">
+<span class="sig-name descname"><span class="pre">s</span></span><a class="headerlink" href="#pfw.Connection.s" title="Link to this definition">¶</a></dt>
+<dd><p>TCP server socket.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>socket.socket</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfw.Connection.essid">
+<span class="sig-name descname"><span class="pre">essid</span></span><a class="headerlink" href="#pfw.Connection.essid" title="Link to this definition">¶</a></dt>
+<dd><p>WiFi network name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfw.Connection.password">
+<span class="sig-name descname"><span class="pre">password</span></span><a class="headerlink" href="#pfw.Connection.password" title="Link to this definition">¶</a></dt>
+<dd><p>WiFi password.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Connection.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">essid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Connection.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the connection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>essid</strong> (<em>str</em>) – SSID for the WiFi AP.</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – Password for the WiFi AP.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Connection.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Connection.create" title="Link to this definition">¶</a></dt>
+<dd><p>Activate the access point and start listening for incoming connections.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Connection.addMapping">
+<span class="sig-name descname"><span class="pre">addMapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Connection.addMapping" title="Link to this definition">¶</a></dt>
+<dd><p>Map a command string to a function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cmd</strong> (<em>str</em>) – Command string.</p></li>
+<li><p><strong>function</strong> (<em>callable</em>) – Function to run when command is received.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Connection.runMapping">
+<span class="sig-name descname"><span class="pre">runMapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Connection.runMapping" title="Link to this definition">¶</a></dt>
+<dd><p>Execute a mapped command if it exists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cmd</strong> (<em>str</em>) – Command string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Connection.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Connection.update" title="Link to this definition">¶</a></dt>
+<dd><p>Non-blocking check for incoming connections and run commands.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dt</strong> (<em>float</em>) – Time step (not used here, required for compatibility).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfw.Physics">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfw.</span></span><span class="sig-name descname"><span class="pre">Physics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0127</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Physics" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Basic physics calculations for projectile motion.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfw.Physics.g">
+<span class="sig-name descname"><span class="pre">g</span></span><a class="headerlink" href="#pfw.Physics.g" title="Link to this definition">¶</a></dt>
+<dd><p>Gravity constant (9.81 m/s^2).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfw.Physics.y">
+<span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#pfw.Physics.y" title="Link to this definition">¶</a></dt>
+<dd><p>Target height.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfw.Physics.R">
+<span class="sig-name descname"><span class="pre">R</span></span><a class="headerlink" href="#pfw.Physics.R" title="Link to this definition">¶</a></dt>
+<dd><p>Radius of the launcher or wheel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfw.Physics.theta">
+<span class="sig-name descname"><span class="pre">theta</span></span><a class="headerlink" href="#pfw.Physics.theta" title="Link to this definition">¶</a></dt>
+<dd><p>Launch angle in degrees.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">g</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9.81</span></em><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">y</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></em><a class="headerlink" href="#id1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Physics.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0127</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Physics.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the physics calculator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>R</strong> (<em>float</em>) – Radius of the wheel/launcher in meters.</p></li>
+<li><p><strong>theta</strong> (<em>float</em>) – Launch angle in degrees.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Physics.calculateOmega">
+<span class="sig-name descname"><span class="pre">calculateOmega</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Physics.calculateOmega" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the required angular velocity to reach a distance x.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>float</em>) – Horizontal distance to target.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Angular velocity in rad/s, or None if invalid.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfw.Robot">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfw.</span></span><span class="sig-name descname"><span class="pre">Robot</span></span><a class="headerlink" href="#pfw.Robot" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Main robot class handling periodic updates and runtime.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfw.Robot.periodics">
+<span class="sig-name descname"><span class="pre">periodics</span></span><a class="headerlink" href="#pfw.Robot.periodics" title="Link to this definition">¶</a></dt>
+<dd><p>List of periodic update functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfw.Robot.loop">
+<span class="sig-name descname"><span class="pre">loop</span></span><a class="headerlink" href="#pfw.Robot.loop" title="Link to this definition">¶</a></dt>
+<dd><p>Loop timer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pfw.Loop" title="pfw.Loop">Loop</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfw.Robot.runtime">
+<span class="sig-name descname"><span class="pre">runtime</span></span><a class="headerlink" href="#pfw.Robot.runtime" title="Link to this definition">¶</a></dt>
+<dd><p>Runtime tracker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pfw.Runtime" title="pfw.Runtime">Runtime</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfw.Robot.running">
+<span class="sig-name descname"><span class="pre">running</span></span><a class="headerlink" href="#pfw.Robot.running" title="Link to this definition">¶</a></dt>
+<dd><p>Flag indicating if the robot loop is active.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Robot.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Robot.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Robot.register">
+<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Robot.register" title="Link to this definition">¶</a></dt>
+<dd><p>Register a device with an ‘update’ method to run each cycle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>device</strong> – Object with an ‘update(dt)’ method.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Robot.periodic">
+<span class="sig-name descname"><span class="pre">periodic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Robot.periodic" title="Link to this definition">¶</a></dt>
+<dd><p>Call all registered periodic functions with the current dt.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Robot.get_runtime">
+<span class="sig-name descname"><span class="pre">get_runtime</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Robot.get_runtime" title="Link to this definition">¶</a></dt>
+<dd><p>Get elapsed runtime in milliseconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Runtime in milliseconds.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Robot.get_dt">
+<span class="sig-name descname"><span class="pre">get_dt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Robot.get_dt" title="Link to this definition">¶</a></dt>
+<dd><p>Get delta time since last loop in seconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Delta time in seconds.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Robot.is_running">
+<span class="sig-name descname"><span class="pre">is_running</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Robot.is_running" title="Link to this definition">¶</a></dt>
+<dd><p>Check if robot loop is still running.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Robot.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Robot.stop" title="Link to this definition">¶</a></dt>
+<dd><p>Stop the robot loop.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfw.Runtime">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfw.</span></span><span class="sig-name descname"><span class="pre">Runtime</span></span><a class="headerlink" href="#pfw.Runtime" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Tracks elapsed time for robot runtime.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Runtime.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Runtime.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Runtime.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Runtime.start" title="Link to this definition">¶</a></dt>
+<dd><p>Start the timer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Runtime.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Runtime.reset" title="Link to this definition">¶</a></dt>
+<dd><p>Reset the timer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Runtime.elapsed">
+<span class="sig-name descname"><span class="pre">elapsed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Runtime.elapsed" title="Link to this definition">¶</a></dt>
+<dd><p>Return elapsed time since start in milliseconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Elapsed time in ms.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfw.Loop">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfw.</span></span><span class="sig-name descname"><span class="pre">Loop</span></span><a class="headerlink" href="#pfw.Loop" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Loop timer to calculate dt between cycles.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Loop.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Loop.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Loop.dt">
+<span class="sig-name descname"><span class="pre">dt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Loop.dt" title="Link to this definition">¶</a></dt>
+<dd><p>Return delta time in seconds since last call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Delta time in seconds.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfw.Utils">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfw.</span></span><span class="sig-name descname"><span class="pre">Utils</span></span><a class="headerlink" href="#pfw.Utils" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Utility static methods.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Utils.Clamp">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Clamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Utils.Clamp" title="Link to this definition">¶</a></dt>
+<dd><p>Clamp a number between minimum and maximum.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num</strong> (<em>float</em>) – Input number.</p></li>
+<li><p><strong>minimum</strong> (<em>float</em>) – Minimum allowed value.</p></li>
+<li><p><strong>maximum</strong> (<em>float</em>) – Maximum allowed value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Clamped value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfw.Motor">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfw.</span></span><span class="sig-name descname"><span class="pre">Motor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Motor" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Basic 2-pin PWM motor control.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Motor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Motor.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the motor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>m1</strong> (<em>int</em>) – Pin number for first motor wire.</p></li>
+<li><p><strong>m2</strong> (<em>int</em>) – Pin number for second motor wire.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Motor.setPower">
+<span class="sig-name descname"><span class="pre">setPower</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Motor.setPower" title="Link to this definition">¶</a></dt>
+<dd><p>Set motor power between -1 and 1.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Motor.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Motor.stop" title="Link to this definition">¶</a></dt>
+<dd><p>Stop the motor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Motor.setMaxDuty">
+<span class="sig-name descname"><span class="pre">setMaxDuty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">duty</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Motor.setMaxDuty" title="Link to this definition">¶</a></dt>
+<dd><p>Set maximum PWM duty (currently global MAX_DUTY).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Motor.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Motor.forward" title="Link to this definition">¶</a></dt>
+<dd><p>Run motor forward.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.Motor.reverse">
+<span class="sig-name descname"><span class="pre">reverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.Motor.reverse" title="Link to this definition">¶</a></dt>
+<dd><p>Run motor backward.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfw.PID">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfw.</span></span><span class="sig-name descname"><span class="pre">PID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kI</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.PID" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Simple PID controller.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.PID.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kI</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kD</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.PID.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize PID controller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kP</strong> (<em>float</em>) – Proportional gain.</p></li>
+<li><p><strong>kI</strong> (<em>float</em>) – Integral gain.</p></li>
+<li><p><strong>kD</strong> (<em>float</em>) – Derivative gain.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.PID.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.PID.compute" title="Link to this definition">¶</a></dt>
+<dd><p>Compute PID output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>float</em>) – Desired value.</p></li>
+<li><p><strong>current</strong> (<em>float</em>) – Current value.</p></li>
+<li><p><strong>dt</strong> (<em>float</em><em>, </em><em>optional</em>) – Time delta in seconds.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Duty cycle, clamped to [-MAX_DUTY, MAX_DUTY].</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pfw.MotorEX">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pfw.</span></span><span class="sig-name descname"><span class="pre">MotorEX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ppr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">38</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.MotorEX" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Advanced motor with encoder and PID control.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.MotorEX.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ppr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">38</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.MotorEX.__init__" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pfw.MotorEX.pid">
+<span class="sig-name descname"><span class="pre">pid</span></span><a class="headerlink" href="#pfw.MotorEX.pid" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize motor with encoder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>m1</strong> (<em>int</em>) – Motor pin 1.</p></li>
+<li><p><strong>m2</strong> (<em>int</em>) – Motor pin 2.</p></li>
+<li><p><strong>c1</strong> (<em>int</em>) – Encoder pin.</p></li>
+<li><p><strong>pid</strong> (<a class="reference internal" href="#pfw.PID" title="pfw.PID"><em>PID</em></a>) – PID controller instance.</p></li>
+<li><p><strong>ppr</strong> (<em>int</em>) – Pulses per revolution.</p></li>
+<li><p><strong>measure_interval</strong> (<em>float</em>) – Interval in seconds to measure RPM.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.MotorEX.setPower">
+<span class="sig-name descname"><span class="pre">setPower</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.MotorEX.setPower" title="Link to this definition">¶</a></dt>
+<dd><p>Set motor power manually (-1 to 1).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.MotorEX.on_pulse">
+<span class="sig-name descname"><span class="pre">on_pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.MotorEX.on_pulse" title="Link to this definition">¶</a></dt>
+<dd><p>Increment pulse counter for RPM calculation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.MotorEX.computeRPM">
+<span class="sig-name descname"><span class="pre">computeRPM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.MotorEX.computeRPM" title="Link to this definition">¶</a></dt>
+<dd><p>Compute RPM from pulses over dt seconds.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.MotorEX.setRPM">
+<span class="sig-name descname"><span class="pre">setRPM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targetRPM</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.MotorEX.setRPM" title="Link to this definition">¶</a></dt>
+<dd><p>Set target RPM for PID.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.MotorEX.getRPM">
+<span class="sig-name descname"><span class="pre">getRPM</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.MotorEX.getRPM" title="Link to this definition">¶</a></dt>
+<dd><p>Get current RPM.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.MotorEX.enablePIDLogs">
+<span class="sig-name descname"><span class="pre">enablePIDLogs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.MotorEX.enablePIDLogs" title="Link to this definition">¶</a></dt>
+<dd><p>Enable PID debug printing.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.MotorEX.getVelocity">
+<span class="sig-name descname"><span class="pre">getVelocity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.MotorEX.getVelocity" title="Link to this definition">¶</a></dt>
+<dd><p>Get angular velocity in rad/s.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.MotorEX.setVelocity">
+<span class="sig-name descname"><span class="pre">setVelocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">velocity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.MotorEX.setVelocity" title="Link to this definition">¶</a></dt>
+<dd><p>Set target velocity in rad/s.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.MotorEX.radsToRPM">
+<span class="sig-name descname"><span class="pre">radsToRPM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">omega</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.MotorEX.radsToRPM" title="Link to this definition">¶</a></dt>
+<dd><p>Convert rad/s to RPM.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.MotorEX.rpmToRADS">
+<span class="sig-name descname"><span class="pre">rpmToRADS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rpm</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.MotorEX.rpmToRADS" title="Link to this definition">¶</a></dt>
+<dd><p>Convert RPM to rad/s.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.MotorEX.getLastDuty">
+<span class="sig-name descname"><span class="pre">getLastDuty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pfw.MotorEX.getLastDuty" title="Link to this definition">¶</a></dt>
+<dd><p>Return last applied PWM duty.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pfw.MotorEX.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pfw.MotorEX.update" title="Link to this definition">¶</a></dt>
+<dd><p>Update motor state:
+- Measure RPM
+- Compute PID duty
+- Apply PWM
+- Optionally print logs</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">pfw</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, adam.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
