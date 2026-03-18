@@ -4,6 +4,6 @@
   "description": "pico",
   "author": "adam",
   "urls": [
-    ["pfw.py", "github:adamz389/conn/pfw.py"]
+    ["pfw.py", "github:adamz389/pfw.py"]
   ]
 }
