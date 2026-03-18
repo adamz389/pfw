@@ -51,19 +51,20 @@ class Connection:
         self.password = password
 
     def create(self):
-        """
-        Activate the access point and start listening for incoming connections.
-        """
         self.ap.active(True)
-        self.ap.config(self.essid, self.password)
+        self.ap.config(essid=self.essid, password=self.password)
+
         while not self.ap.active():
             time.sleep(0.1)
+
         time.sleep(1)
+
         addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
         self.s = socket.socket()
         self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.s.bind(addr)
         self.s.listen(1)
+
         print("Connect at http://192.168.4.1/")
 
     def addMapping(self, cmd, function):
