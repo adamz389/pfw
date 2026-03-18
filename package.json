@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "pico",
   "author": "adam",
-  "urls": [
-    ["pfw.py", "github:adamz389/pfw.py"]
-  ]
+  "files": ["pfw.py"]
 }
+
+
