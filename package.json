@@ -1,9 +1,6 @@
 {
-  "name": "pfw",
-  "version": "0.1.0",
-  "description": "pico",
-  "author": "adam",
-  "files": ["pfw.py"]
+  "urls": [
+    ["pfw.py", "pfw.py"]
+  ],
+  "version": "0.1.0"
 }
-
-
