@@ -1,6 +1,8 @@
 ### **DOCS:**
 https://adamz389.github.io/pfw/
 
+## Install with `ViperIDE`
+### Click:
 [<img src="https://raw.githubusercontent.com/vshymanskyy/ViperIDE/refs/heads/main/assets/btn_install.png" alt="Install using ViperIDE" height="48"/>](https://viper-ide.org/?install=github:adamz389/pfw)
 
 ## Install `mpremote`
