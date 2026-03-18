@@ -1,9 +1,7 @@
 {
   "name": "pfw",
   "version": "0.1.0",
-  "description": "pico",
-  "author": "adam",
   "urls": [
-    ["pfw.py", "github:adamz389/pfw/pfw.py"]
+    ["pfw.py", "pfw.py"]
   ]
 }
