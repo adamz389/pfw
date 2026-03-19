@@ -22,6 +22,38 @@ import socket
 
 MAX_DUTY = 65535
 
+class Drivetrain:
+    
+    def __init__(self, motor1, motor2):
+        self.motor1 = motor1
+        self.motor2 = motor2
+
+    def resetMotors(self):
+        self.motor1.setPower(0)
+        self.motor2.setPower(0)
+
+    def right(self):
+        self.resetMotors()
+        self.motor1.setPower(1)
+        self.motor2.setPower(-1)
+
+    def left(self):
+        self.resetMotors()
+        self.motor1.setPower(-1)
+        self.motor2.setPower(1)
+        
+    def forward(self):
+        self.resetMotors()
+        self.motor1.setPower(1)
+        self.motor2.setPower(1)
+
+    def backward(self):
+        self.resetMotors()
+        self.motor1.setPower(-1)
+        self.motor2.setPower(-1)
+
+    def stop(self):
+        self.resetMotors()
 
 class Connection:
     """
@@ -66,6 +98,13 @@ class Connection:
         self.s.listen(1)
 
         print("Connect at http://192.168.4.1/")
+
+    def initDrive(self, drivetrain):
+        self.addMapping("RIGHT", drivetrain.right)
+        self.addMapping("LEFT", drivetrain.left)
+        self.addMapping("FORWARD", drivetrain.forward)
+        self.addMapping("BACKWARD", drivetrain.backward)
+        self.addMapping("STOP", drivetrain.stop)
 
     def addMapping(self, cmd, function):
         """
