@@ -136,14 +136,27 @@ class Connection:
             dt (float): Time step (not used here, required for compatibility).
         """
         try:
-            self.s.settimeout(0)
+            self.s.settimeout(0.01)
             cl, addr = self.s.accept()
             try:
                 cmd = cl.recv(1024).decode()
-                path = cmd.split("\n")[0].split()[1].lstrip('/')
+
+                if not cmd:
+                    return
+                
+                line = cmd.split("\r\n")[0]
+                parts = line.split()
+                
+                if len(parts) >= 2:
+                    path = parts[1].lstrip('/')
+                else:
+                    path = ""
+                
                 if path:
                     self.runMapping(path)
-                cl.send(b"OK")
+                
+                response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nOK"
+                cl.send(response.encode())
             except OSError:
                 pass
             finally:
